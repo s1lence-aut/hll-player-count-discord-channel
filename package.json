@@ -1,0 +1,30 @@
+{
+  "name": "hll-player-count-discord-channel",
+  "version": "1.0.0",
+  "description": "Discord bot that updates channel names with real-time player counts from Hell Let Loose servers",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "start": "node main.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "discord",
+    "bot",
+    "hell-let-loose",
+    "hll",
+    "player-count",
+    "rcon"
+  ],
+  "author": "s1lence-aut",
+  "license": "MIT",
+  "dependencies": {
+    "discord.js": "^14.11.0",
+    "dotenv": "^16.0.3",
+    "node-fetch": "^3.3.1",
+    "winston": "^3.8.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

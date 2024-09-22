@@ -1,0 +1,6 @@
+services:
+  hll-player-count:
+    build: .
+    env_file: .env
+    restart: unless-stopped
+    command: node main.mjs
