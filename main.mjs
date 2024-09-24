@@ -21,7 +21,7 @@ const logger = createLogger({
 // Initialize Discord client
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
-// Function to fetch game state from CRCON API
+// Function to fetch game state from RCON API
 async function getGameState(url, token) {
   try {
     const response = await fetch(`${url}/api/get_status`, {
@@ -69,7 +69,7 @@ async function checkPlayerCount(apiUrl) {
   try {
     const gameState = await getGameState(apiUrl, config.API_TOKEN);
     if (gameState && gameState.num_players != null) {
-      logger.debug(`Server ${apiUrl} - Player count: ${gameState.num_players}/${gameState.max_players}`);
+      logger.debug(`Server ${apiUrl} - Player count: ${gameState.num_players}`);
       logger.debug(`Server name: ${gameState.server_name}`);
       logger.debug(`Current map: ${gameState.map_name}`);
       return gameState;
@@ -93,12 +93,12 @@ async function updateChannelStatus() {
         continue;
       }
 
-      const { num_players, max_players } = gameState;
+      const { num_players } = gameState;
       const statusSymbol = num_players <= config.FLAG_YELLOW ? '🔴' :
         num_players <= config.FLAG_GREEN ? '🟡' : '🟢';
 
       for (const { channelId, suffix } of channels) {
-        const newName = `${statusSymbol} - ${num_players}/${max_players} ${suffix}`;
+        const newName = `${statusSymbol} - ${num_players} ${suffix}`;
         try {
           const channel = await client.channels.fetch(channelId);
           if (!channel) {
@@ -131,14 +131,23 @@ async function updateChannelStatus() {
 // Event handler for when the bot is ready
 client.once('ready', () => {
   logger.info(`${client.user.tag} is logged in.`);
-  setInterval(async () => {
+  startUpdateInterval();
+});
+
+// Function to start the update interval
+function startUpdateInterval() {
+  const intervalId = setInterval(async () => {
     try {
       await updateChannelStatus();
     } catch (error) {
       logger.error(`An error occurred: ${error}`);
+      // If there's an error, clear the interval and restart it
+      clearInterval(intervalId);
+      logger.info('Restarting update interval due to error.');
+      startUpdateInterval();
     }
   }, config.UPDATE_INTERVAL_SECONDS * 1000);
-});
+}
 
 // Login to Discord
 client.login(config.DISCORD_TOKEN).then(() => {
